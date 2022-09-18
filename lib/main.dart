@@ -7,6 +7,8 @@ import './providers/cart.dart';
 import './routes/cart_route.dart';
 import './providers/orders.dart';
 import './routes/order_route.dart';
+import './routes/user_route.dart';
+import './routes/add_edit_product.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,7 +26,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'MyShop',
         theme: ThemeData(
-          primaryColor: Colors.green,
+          primaryColor: Colors.purple,
           fontFamily: 'Lato',
           colorScheme:
               ColorScheme.fromSwatch().copyWith(secondary: Colors.deepOrange),
@@ -33,7 +35,9 @@ class MyApp extends StatelessWidget {
         routes: {
           ProductDetails.routeName: (context) => ProductDetails(),
           CardRoute.routeName: ((context) => CardRoute()),
-          OrderRoute.routeName: ((context) => OrderRoute())
+          OrderRoute.routeName: ((context) => OrderRoute()),
+          UserRoute.routeName: (context) => UserRoute(),
+          EditProduct.routeName: (context) => EditProduct()
         },
       ),
     );
