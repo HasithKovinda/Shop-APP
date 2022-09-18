@@ -1,5 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import './cart.dart';
 
 class OrderItem {
@@ -23,16 +25,64 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    var url = Uri.https(
+        'flutter-shopping-app-5f0b7-default-rtdb.firebaseio.com',
+        '/order.json');
+    final currentTime = DateTime.now();
+    final res = await http.post(url,
+        body: json.encode({
+          'amount': total,
+          'dateTime': currentTime.toIso8601String(),
+          'products': cartProducts
+              .map((cd) => {
+                    'id': cd.id,
+                    'title': cd.title,
+                    'quantity': cd.quantity,
+                    'price': cd.price
+                  })
+              .toList()
+        }));
     _orders.insert(
       0,
       OrderItem(
-        id: DateTime.now().toString(),
+        id: json.decode(res.body)['name'],
         amount: total,
-        dateTime: DateTime.now(),
+        dateTime: currentTime,
         products: cartProducts,
       ),
     );
+    notifyListeners();
+  }
+
+  Future<void> fetchOrders() async {
+    var url = Uri.https(
+        'flutter-shopping-app-5f0b7-default-rtdb.firebaseio.com',
+        '/order.json');
+    final response = await http.get(url);
+    if (jsonDecode(response.body) == null) return;
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(
+        OrderItem(
+          id: orderId,
+          amount: orderData['amount'],
+          dateTime: DateTime.parse(orderData['dateTime']),
+          products: (orderData['products'] as List<dynamic>)
+              .map(
+                (item) => CartItem(
+                  id: item['id'],
+                  price: item['price'],
+                  quantity: item['quantity'],
+                  title: item['title'],
+                ),
+              )
+              .toList(),
+        ),
+      );
+    });
+    _orders = loadedOrders.reversed.toList();
     notifyListeners();
   }
 }

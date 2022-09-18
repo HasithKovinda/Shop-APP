@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/providers/provider.dart';
+import 'package:shop_app/providers/products.dart';
 import '../routes/add_edit_product.dart';
 import '../providers/cart.dart';
 
